@@ -1,0 +1,448 @@
+{% extends 'base.html' %}
+
+{% block title %}Jublia Test - Email{% endblock %}
+
+{% block style %}
+    <link href="https://cdn.datatables.net/1.13.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <style>
+        .table-outer-border {
+            border: 2px solid #007bff; /* Border luar */
+            border-radius: 0.375rem; /* Rounded corners */
+            overflow: hidden; /* Menghilangkan border dalam */
+        }
+        .table-outer-border th,
+        .table-outer-border td {
+            border: none; /* Tidak ada border dalam */
+        }
+    </style>
+{% endblock style %}
+
+{% block content %}
+    <div class='row'>
+        <div class='col-12 text-center d-flex flex-column justify-content-center'>
+            <h1>Jublia Test - Email</h1>
+            <div class='text-end mt-3 mb-3'>
+                <button class='btn btn-primary' data-bs-toggle="modal" data-bs-target="#ModalSend">Send New Email</button>
+            </div>
+            <table id="example" class="table " style="width:100%">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Event ID</th>
+                        <th>Email</th>
+                        <th>Subject</th>
+                        <th>Status</th>
+                        <th>Sending date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for data in list_data_email %}
+                        <tr>
+                            <td>{{ data.event_id }}</td>
+                            <td>
+                                {% set total_recipients = data.recipients | length %}
+                                {% for recipient in data.recipients[:3] %}
+                                    {{ recipient }}
+                                    {% if not loop.last %}
+                                    ,
+                                    {% endif %}
+                                {% endfor %}
+                                {% if total_recipients > 3 %}
+                                 and Others
+                                {% endif %}
+                            </td>
+                            <td>{{ data.email_subject }}</td>
+                            {% if data.status == 0 %}
+                                <td>
+                                    <span class='badge bg-warning p-2'>Pending</span>
+                                </td>
+                                <td>{{ data.send_date.strftime('%d %b %Y %H:%M') }}</td>
+                                <td>
+                                    <button type='button' class='btn btn-primary' value='{{ data.id }}' onclick='get_data(this)'>
+                                        <i class="bi bi-info-lg"></i>
+                                    </button>
+                                    <button type='button' class='btn btn-danger' value='{{ data.id }}', onclick='cancel_data(this)'>
+                                        <i class="bi bi-x-lg"></i>
+                                    </button>
+                                </td>
+                            {% elif data.status == 1 %}
+                                <td>
+                                    <span class='badge bg-success p-2'>Success</span>
+                                </td>
+                                <td>{{ data.send_date.strftime('%d %b %Y %H:%M') }}</td>
+                                <td>
+                                    <button type='button' class='btn btn-primary' value='{{ data.id }}' onclick='get_data(this)'>
+                                        <i class="bi bi-info-lg"></i>
+                                    </button>
+                                </td>
+                            {% elif data.status == -1 %}
+                                <td>
+                                    <span class='badge bg-dark p-2'>Failed</span>
+                                </td>
+                                <td>{{ data.send_date.strftime('%d %b %Y %H:%M') }}</td>
+                                <td>
+                                    <button type='button' class='btn btn-primary' value='{{ data.id }}' onclick='get_data(this)'>
+                                        <i class="bi bi-info-lg"></i>
+                                    </button>
+                                    <button type='button' class='btn btn-warning'>
+                                        <i class="bi bi-arrow-clockwise"></i>
+                                    </button>
+                                </td>
+                            {% elif data.status == -2 %}
+                                <td>
+                                    <span class='badge bg-danger p-2'>Canceled</span>
+                                </td>
+                                <td>{{ data.send_date.strftime('%d %b %Y %H:%M') }}</td>
+                                <td>
+                                    <button type='button' class='btn btn-primary' value='{{ data.id }}' onclick='get_data(this)'>
+                                        <i class="bi bi-info-lg"></i>
+                                    </button>
+                                </td>
+                            {% else %}
+                                <td>
+                                    <span class='badge bg-secondary p-2'>Unkown</span>
+                                </td>
+                                <td>{{ data.send_date.strftime('%d %b %Y %H:%M') }}</td>
+                                <td>
+                                    <button type='button' class='btn btn-primary' value='{{ data.id }}' onclick='get_data(this)'>
+                                        <i class="bi bi-info-lg"></i>
+                                    </button>
+                                </td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="ModalSend" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">Send New Email</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class='container-fluid'>
+                        <div class='row'>
+                            <div class='col-12'>
+                                <form action="" method="POST">
+                                    {{ email_form.csrf_token }}
+                                    <div class="mb-3 mt-3">
+                                        {{ email_form.event_id.label }}
+                                        {{ email_form.event_id }}
+                                    </div>
+                                    <div class="mb-3 mt-3">
+                                        <label for="emails[]">Reciepent Email</label>
+                                        <div class='row pb-2' id="email-list">
+                                            <div class='col-4 mb-1'>
+                                                <div class="email-item">
+                                                    <div id="email-inputs">
+                                                        <input type="email" name="emails[]" class='form-control' placeholder="Enter email" required>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button type="button" class='btn btn-primary' onclick="addEmail()">Add another email</button>
+                                    </div>
+                                    <div class="mb-3 mt-3">
+                                        {{ email_form.subject.label }}
+                                        {{ email_form.subject }}
+                                    </div>
+                                    <div class="mb-3 mt-3">
+                                        {{ email_form.body.label }}
+                                        {{ email_form.body }}
+                                    </div>
+                                    <div class="mb-3 mt-3">
+                                        {{ email_form.send_date.label }}
+                                        {{ email_form.send_date }}
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="send_email()">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="ModalData" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title pe-3" id="staticBackdropLabel">Email Details </h5>
+                    <span id='data_status' class='badge p-2'></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class='container-fluid'>
+                        <div class='row'>
+                            <div class='col-12'>
+                                <h5>Event Id : <span id='data_event_id'></span></h5>
+                            </div>
+                            <div class='col-8 text-start'>
+                                <span id='data_email'>Moch Ilham Fauzan</span>
+                            </div>
+                            <div class='col-4 text-end'>
+                                <span id='data_send_date'>Date</span>
+                            </div>
+                            <div class='col-12'>
+                                <span>Subject : <span id='data_email_subject'></span></span>
+                            </div>
+                            <div class='col-12 mt-2'>
+                                <span id='data_email_content'>lorem jbasjdn kajsnd kjankdj ans djans kjanskj dnaskjnd kasjn dkjasn kjdnasjknd kajsnd </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Got It!</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.5/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+    <script>
+        $(document).ready(function() {
+            // Get current time in Singapore
+            const singaporeTime = new Date().toLocaleString("sv-SE", { timeZone: "Asia/Singapore" });
+            const date = new Date(singaporeTime); // Convert to Date object
+
+            // Initialize Flatpickr
+            flatpickr("#send_date", {
+                enableTime: true,
+                dateFormat: "d M Y H:i",
+                time_24hr: true,
+                minuteIncrement: 1,
+                defaultDate: date // Set default date to current Singapore time
+            });
+
+            // Setting flatpickr's input value correctly
+            $('#send_date').val(date.toLocaleString("en-SG", { 
+                timeZone: 'Asia/Singapore', 
+                hour12: false, 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric', 
+                hour: '2-digit', 
+                minute: '2-digit'
+            }).replace(',', '')); 
+        });
+    </script>
+    
+    <script>
+        new DataTable('#example', {
+            layout: {
+                topStart: {
+                    buttons: ['copy', 'excel', 'pdf', 'colvis']
+                }
+            }
+        });
+    </script>
+
+    <script>
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'UTC' };
+            const date = new Date(dateString);
+            
+            const formattedDate = date.toLocaleString('en-GB', options).replace(',', '').replace(' at', '');
+            return formattedDate;
+        }
+    </script>
+
+    <script>
+        function addEmail() {
+            var emailList = document.getElementById('email-list');
+            var emailItem = document.createElement('div');
+            var col = document.createElement('div');
+            col.classList.add('col-4', 'mb-1')
+
+            emailItem.classList.add('email-item');
+            emailItem.innerHTML = `
+                <input class="form-control" name="emails[]" type="email", placeholder="Enter email">
+            `;
+            col.appendChild(emailItem)
+            emailList.appendChild(col);
+        }
+        
+        function send_email() {
+            console.log('Button clicked!');
+            const event_id = document.getElementById('event_id').value;
+            
+            const subject = document.getElementById('subject').value;
+            const body = document.getElementById('body').value;
+            const send_date = document.getElementById('send_date').value;
+            const csrf_token = document.querySelector('input[name="csrf_token"]').value;  // Ambil CSRF token
+            
+            let xhr_send = new XMLHttpRequest();
+            
+            console.log(csrf_token)
+            let formData_send = new FormData();
+            formData_send.append("event_id", event_id);
+            formData_send.append("subject", subject);
+            formData_send.append("body", body);
+            formData_send.append("send_date", send_date)
+            formData_send.append("csrf_token", csrf_token);
+            const emailInputs = document.querySelectorAll('input[name="emails[]"]');
+            let email_valid = true;
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            emailInputs.forEach((input) => {
+                formData_send.append('emails', input.value);
+                if(!emailPattern.test(input.value)){
+                    email_valid = false;
+                }
+            });
+
+            if(email_valid){
+                xhr_send.open("POST", "{{ url_for('main.save_emails') }}");
+
+                xhr_send.onload = function() {
+                    var response_send = JSON.parse(xhr_send.responseText);
+                    console.log(response_send)
+                    console.log(xhr_send.status)
+                    Swal.fire({
+                        title: 'Email Sent Successfully!',
+                        text: 'Your email has been sent successfully.',
+                        icon: 'success',
+                        confirmButtonText: 'Okay',
+                        showCloseButton: true,
+                    }).then(() =>{
+                        location.reload();
+                    });
+                }
+                xhr_send.setRequestHeader("X-CSRFToken", csrf_token);
+    
+                xhr_send.send(formData_send);
+            } else{
+                Swal.fire({
+                    title: 'Invalid Email!',
+                    text: 'The email address you have entered is not valid. Please enter a valid email address.',
+                    icon: 'error',
+                    confirmButtonText: 'Okay',
+                    showCloseButton: true,
+                })
+            }
+            
+        }
+
+        function get_data(obj){
+            console.log(obj.value);
+            let xhr_data = new XMLHttpRequest();
+            
+            console.log(csrf_token)
+            let formData_get = new FormData();
+            formData_get.append("id", obj.value);
+
+            let url = `{{ url_for('main.get_emails', id='0') }}`.replace('0', obj.value);
+            xhr_data.open("GET", url);
+
+            xhr_data.onload = function() {
+                var response_data = JSON.parse(xhr_data.responseText);
+                console.log(response_data)
+                console.log(xhr_data.status)
+                if(xhr_data.status >= 200 && xhr_data.status < 300){
+                    document.getElementById("data_event_id").innerHTML = response_data["event_id"]
+                    
+                    let text_email = ""
+                    response_data["email"].forEach(email => {
+                        console.log(email); // Proses setiap email di sini
+                        text_email = text_email + email + " "
+                    });
+                    document.getElementById("data_email").innerHTML = text_email
+                    document.getElementById("data_email_subject").innerHTML = response_data["email_subject"]
+                    document.getElementById("data_email_content").innerHTML = response_data["email_content"]
+                    document.getElementById("data_send_date").innerHTML = formatDate(response_data["send_date"])
+                    
+                    if(response_data["status"] == 0){
+                        document.getElementById("data_status").className = "badge bg-warning p-2 "
+                        document.getElementById("data_status").innerHTML = "Pending"
+                    } else if(response_data["status"] == 1) {
+                        document.getElementById("data_status").className = "badge bg-success p-2"
+                        document.getElementById("data_status").innerHTML = "Success"
+                    } else if(response_data["status"] == -1) {
+                        document.getElementById("data_status").className = "badge bg-dark p-2"
+                        document.getElementById("data_status").innerHTML = "Failed"
+                    }else if(response_data["status"] == -2) {
+                        document.getElementById("data_status").className = "badge bg-danger p-2"
+                        document.getElementById("data_status").innerHTML = "Canceled"
+                    } else{
+                        document.getElementById("data_status").className = "badge bg-secondary p-2"
+                        document.getElementById("data_status").innerHTML = "Unkown"
+                    }
+                    $("#ModalData").modal('show')
+                }
+            }
+            xhr_data.send(formData_get);
+        }
+
+
+        function cancel_data(obj){
+            console.log(obj.value);
+
+            Swal.fire({
+                title: 'Confirm Email Cancellation ',
+                html: `
+                    <p>Are you sure you want to cancel sending this email?</p>
+                `,
+                icon: 'warning',
+                showDenyButton: true,
+                confirmButtonColor: '#d33',
+                denyButtonColor: '#3085d6',
+                confirmButtonText: 'Delete',
+                denyButtonText: 'Cancel',
+                showCloseButton: true,
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Lakukan aksi pembatalan top-up
+                    let xhr_cancel = new XMLHttpRequest();
+            
+                    console.log(csrf_token)
+                    let formData_cancel = new FormData();
+                    formData_cancel.append("id", obj.value);
+
+                    let url = `{{ url_for('main.cancel_emails', id='0') }}`.replace('0', obj.value);
+                    xhr_cancel.open("GET", url);
+
+                    xhr_cancel.onload = function() {
+                        var response_data = JSON.parse(xhr_cancel.responseText);
+                        console.log(response_data)
+                        console.log(xhr_cancel.status)
+                        if(xhr_cancel.status >= 200 && xhr_cancel.status < 300){
+                            Swal.fire({
+                                title: 'Cancel Email Successfully!',
+                                text: 'Your email has been cancel successfully.',
+                                icon: 'success',
+                                confirmButtonText: 'Okay',
+                                showCloseButton: true,
+                            }).then(() =>{
+                                location.reload();
+                            });
+                        }
+                    }
+                    xhr_cancel.send(formData_cancel);
+                } else {
+                    Swal.close(); // Menutup SweetAlert jika pengguna menutupnya tanpa melakukan aksi
+                }
+            });   
+
+        }
+    </script>
+
+
+{% endblock script %}
