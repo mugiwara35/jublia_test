@@ -9,7 +9,7 @@ The application features a robust scheduling mechanism that automatically sends 
 - Schedule emails for future delivery based on a specified timestamp.
 - Option to cancel scheduled emails **(This is an additional feature to enhance the functionality of the application)**.
 - Built-in error handling and validation for user inputs.
-
+- Add a unit test to verify that Celery sends an email correctly.
 This project aims to streamline the process of sending scheduled emails, making it easier for users to manage their communications effectively.
 
 ## Installation
@@ -49,3 +49,13 @@ python app.py
 ```
 ### 5. Access the Application
 Open your web browser and go to http://localhost:5000 to access the application.
+
+## Note
+### 1. I am not using a .env file in this project to simplify testing and configuration.
+### 2. Changing Email Configuration
+To change the email configuration, open the `config.py` file in this project. Update the following variables with your email settings: 
+```python
+MAIL_USERNAME = 'your_email'
+MAIL_DEFAULT_SENDER = 'your_email'
+MAIL_PASSWORD = 'your_email_password'
+```
