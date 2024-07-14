@@ -247,6 +247,10 @@
         new DataTable('#example', {
             order: [], 
         });
+
+        $('#ModalSend').on('hidden.bs.modal', function () {
+            location.reload();
+        });
     </script>
 
     <script>
