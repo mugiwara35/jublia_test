@@ -45,13 +45,21 @@ celery -A celery_worker worker --pool=solo --loglevel=info
 Open a third terminal, activate the environment, and run the Flask application (don't close this terminal):
 ```bash
 .\env\Scripts\activate  # Activate the virtual environment on Windows
+cd jublia_test
 python app.py
 ```
 ### 5. Access the Application
 Open your web browser and go to http://localhost:5000 to access the application.
 
 ## Notes
-### 1. I am not using a .env file in this project to simplify testing and configuration.
+### 1. Simple Test 
+I am not using a .env file in this project to simplify testing and configuration. To perform testing using unit tests, simply run the following command (assuming you have completed the installation steps):
+```bash
+.\env\Scripts\activate  # Activate the virtual environment on Windows
+cd jublia_test
+python test.py
+```
+
 ### 2. Changing Email Configuration
 To change the email configuration, open the `config.py` file in this project. Update the following variables with your email settings: 
 ```python
