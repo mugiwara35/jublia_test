@@ -196,10 +196,11 @@
                                 <span id='data_send_date'>Date</span>
                             </div>
                             <div class='col-12'>
-                                <span>Subject : <span id='data_email_subject'></span></span>
+                                <span class='text-muted'>Subject : <span id='data_email_subject' class='text-dark'></span></span>
                             </div>
                             <div class='col-12 mt-2'>
-                                <span id='data_email_content'>lorem jbasjdn kajsnd kjankdj ans djans kjanskj dnaskjnd kasjn dkjasn kjdnasjknd kajsnd </span>
+                                <span class='text-muted pb-0'>Message:</span><br>
+                                <span>&nbsp;&nbsp;&nbsp;&nbsp;</span><span id='data_email_content'></span>
                             </div>
                         </div>
                     </div>
@@ -370,7 +371,7 @@
                     let text_email = ""
                     response_data["email"].forEach(email => {
                         console.log(email);
-                        text_email = text_email + email + " "
+                        text_email = text_email + email + ", "
                     });
                     document.getElementById("data_email").innerHTML = text_email
                     document.getElementById("data_email_subject").innerHTML = response_data["email_subject"]
