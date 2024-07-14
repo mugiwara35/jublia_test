@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 celery = Celery('tasks')
 celery.conf.update(broker_url='redis://localhost:6379/0', result_backend='redis://localhost:6379/0')
 
-@celery.task
+@celery.task(name='tasks.send_async_email')
 def send_async_email(id):
     logger.info("Starting send_async_email task")
     try:
@@ -39,6 +39,9 @@ def send_async_email(id):
 
                 db_send_email.status = 1
                 db.session.commit()
+            else:
+                logger.info(f"Mail port: {app.config['MAIL_PORT']}")
+                
                 
     except Exception as e:
         logger.error(f"Error occurred: {str(e)}")

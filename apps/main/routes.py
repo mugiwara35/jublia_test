@@ -28,8 +28,6 @@ def index():
             'status': data.status,
             'recipients': recipient_list
         })
-        print(recipient_list)
-
     context = {
         'list_data_email': data_with_recipients
     }
@@ -40,8 +38,8 @@ def index():
 def save_emails():
     form = EmailForm(request.form)
     
-    print("Form Data Received:", request.form)
-    print("CSRF Token Received:", request.form.get('csrf_token'))
+    # print("Form Data Received:", request.form)
+    # print("CSRF Token Received:", request.form.get('csrf_token'))
 
     if form.validate():
         event_id = form.event_id.data
@@ -49,13 +47,6 @@ def save_emails():
         subject = form.subject.data
         body = form.body.data
         send_date = form.send_date.data
-        
-        print("Email: ", emails)
-        print("Subject: ", subject)
-        print("Body: ", body)
-        print("send_date: ", send_date)
-        print(type(send_date))
-        
         
         new_email = Send_Emails(
                                 event_id = event_id,
@@ -113,19 +104,24 @@ def get_emails(id):
 def cancel_emails(id):
     data_send_emails = Send_Emails.query.filter_by(id=id).first()
     if data_send_emails:
-        cancel_task(data_send_emails.celery_id)
-        data_send_emails.status = -2
-        db.session.commit()
-        
-        return jsonify({
-            'event_id': data_send_emails.event_id,
-            'email': "",
-            'email_subject': data_send_emails.email_subject,
-            'email_content': data_send_emails.email_content, 
-            'status': data_send_emails.status,
-            'send_date': data_send_emails.send_date,
-             
-        }), 200
+        if data_send_emails.status == 0:
+            cancel_task(data_send_emails.celery_id)
+            data_send_emails.status = -2
+            db.session.commit()
+            
+            return jsonify({
+                'event_id': data_send_emails.event_id,
+                'email': "",
+                'email_subject': data_send_emails.email_subject,
+                'email_content': data_send_emails.email_content, 
+                'status': data_send_emails.status,
+                'send_date': data_send_emails.send_date,
+                
+            }), 200
+        elif data_send_emails.status == 1:
+            return jsonify({'message': 'Cannot be cancelled, because this email has been successfully sent'}), 400
+        else:
+            return jsonify({'message': 'This email has already been cancelled'}), 400
     else:
         return jsonify({'message': 'Email not found'}), 404
 

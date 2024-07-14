@@ -248,11 +248,7 @@
     
     <script>
         new DataTable('#example', {
-            layout: {
-                topStart: {
-                    buttons: ['copy', 'excel', 'pdf', 'colvis']
-                }
-            }
+            order: [], 
         });
     </script>
 
@@ -316,15 +312,26 @@
                     var response_send = JSON.parse(xhr_send.responseText);
                     console.log(response_send)
                     console.log(xhr_send.status)
-                    Swal.fire({
-                        title: 'Email Sent Successfully!',
-                        text: 'Your email has been sent successfully.',
-                        icon: 'success',
-                        confirmButtonText: 'Okay',
-                        showCloseButton: true,
-                    }).then(() =>{
-                        location.reload();
-                    });
+                    if(xhr_send.status >= 200 && xhr_send.status < 300){
+                        Swal.fire({
+                            title: 'Email Sent Successfully!',
+                            text: 'Your email has been sent successfully.',
+                            icon: 'success',
+                            confirmButtonText: 'Okay',
+                            showCloseButton: true,
+                        }).then(() =>{
+                            location.reload();
+                        });
+                    } else{
+                        Swal.fire({
+                            title: 'Email Creation Failed!',
+                            text: "Form is invalid. Please fill the form correctly",
+                            icon: 'error',
+                            confirmButtonText: 'Okay',
+                            showCloseButton: true,
+                        });
+                    }
+                    
                 }
                 xhr_send.setRequestHeader("X-CSRFToken", csrf_token);
     
@@ -386,6 +393,16 @@
                         document.getElementById("data_status").innerHTML = "Unkown"
                     }
                     $("#ModalData").modal('show')
+                } else{
+                    Swal.fire({
+                        title: 'Failed to show the data!',
+                        text: response_data["message"],
+                        icon: 'error',
+                        confirmButtonText: 'Okay',
+                        showCloseButton: true,
+                    }).then(() => {
+                        location.reload();
+                    });
                 }
             }
             xhr_data.send(formData_get);
@@ -425,12 +442,22 @@
                         console.log(xhr_cancel.status)
                         if(xhr_cancel.status >= 200 && xhr_cancel.status < 300){
                             Swal.fire({
-                                title: 'Cancel Email Successfully!',
-                                text: 'Your email has been cancel successfully.',
+                                title: 'Email Cancelled Successfully!',
+                                text: 'Your email has been cancelled successfully.',
                                 icon: 'success',
                                 confirmButtonText: 'Okay',
                                 showCloseButton: true,
                             }).then(() =>{
+                                location.reload();
+                            });
+                        } else{
+                            Swal.fire({
+                                title: 'Email Cancellation Failed!',
+                                text: response_data["message"],
+                                icon: 'error',
+                                confirmButtonText: 'Okay',
+                                showCloseButton: true,
+                            }).then(() => {
                                 location.reload();
                             });
                         }
