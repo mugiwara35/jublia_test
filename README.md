@@ -1,6 +1,17 @@
 # Project Name
+## Email Scheduler Web Application
 
-This is a brief description of your project.
+This project is a simple web application built using Flask that serves as an email scheduler. The main function of the application is to provide a POST endpoint that allows users to store email details in a database for a specific group of recipients. Users can input the following parameters: `event_id`, `email_recipient`, `email_subject`, `email_content`, and a `timestamp` indicating when the email should be sent.
+
+The application features a robust scheduling mechanism that automatically sends the emails at the designated times. Users can also update or cancel scheduled emails if needed.
+
+### Key Features:
+- Store email details and recipient information in a database.
+- Schedule emails for future delivery based on a specified timestamp.
+- Option to cancel scheduled emails **(This is an additional feature to enhance the functionality of the application)**.
+- Built-in error handling and validation for user inputs.
+
+This project aims to streamline the process of sending scheduled emails, making it easier for users to manage their communications effectively.
 
 ## Installation
 
