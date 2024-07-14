@@ -10,6 +10,6 @@ Follow these steps to set up the project environment:
 
 ```bash
 git clone https://github.com/mugiwara35/jublia_test.git
-
+```
 
 ### 1. Clone the Repository
