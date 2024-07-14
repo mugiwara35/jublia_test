@@ -16,18 +16,10 @@ class TaskTestCase(unittest.TestCase):
         self.app_context.pop()
 
     def test_send_async_email(self):
-        # Asumsikan fungsi pengiriman email adalah send_async_email
         task = self.celery.send_task('tasks.send_async_email', args=[1])
-        
-        # Tunggu beberapa detik untuk memastikan tugas telah selesai
         sleep(5)
-        
         result = AsyncResult(task.id, app=self.celery)
-        
-        # Pastikan status tugas adalah Succeeded
         self.assertEqual(result.status, states.SUCCESS)
-        
-        # Anda bisa menambahkan pemeriksaan lainnya tergantung pada kebutuhan aplikasi Anda
 
 if __name__ == '__main__':
     unittest.main()

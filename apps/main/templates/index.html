@@ -220,20 +220,17 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
     <script>
         $(document).ready(function() {
-            // Get current time in Singapore
             const singaporeTime = new Date().toLocaleString("sv-SE", { timeZone: "Asia/Singapore" });
-            const date = new Date(singaporeTime); // Convert to Date object
+            const date = new Date(singaporeTime); 
 
-            // Initialize Flatpickr
             flatpickr("#send_date", {
                 enableTime: true,
                 dateFormat: "d M Y H:i",
                 time_24hr: true,
                 minuteIncrement: 1,
-                defaultDate: date // Set default date to current Singapore time
+                defaultDate: date 
             });
 
-            // Setting flatpickr's input value correctly
             $('#send_date').val(date.toLocaleString("en-SG", { 
                 timeZone: 'Asia/Singapore', 
                 hour12: false, 
@@ -284,7 +281,7 @@
             const subject = document.getElementById('subject').value;
             const body = document.getElementById('body').value;
             const send_date = document.getElementById('send_date').value;
-            const csrf_token = document.querySelector('input[name="csrf_token"]').value;  // Ambil CSRF token
+            const csrf_token = document.querySelector('input[name="csrf_token"]').value; 
             
             let xhr_send = new XMLHttpRequest();
             
@@ -368,7 +365,7 @@
                     
                     let text_email = ""
                     response_data["email"].forEach(email => {
-                        console.log(email); // Proses setiap email di sini
+                        console.log(email);
                         text_email = text_email + email + " "
                     });
                     document.getElementById("data_email").innerHTML = text_email
@@ -426,7 +423,6 @@
                 showCloseButton: true,
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Lakukan aksi pembatalan top-up
                     let xhr_cancel = new XMLHttpRequest();
             
                     console.log(csrf_token)
@@ -464,7 +460,7 @@
                     }
                     xhr_cancel.send(formData_cancel);
                 } else {
-                    Swal.close(); // Menutup SweetAlert jika pengguna menutupnya tanpa melakukan aksi
+                    Swal.close(); 
                 }
             });   
 

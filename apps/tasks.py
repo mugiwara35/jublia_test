@@ -6,7 +6,6 @@ from celery import Celery
 import logging
 from apps.main.models import Send_Emails, Recipient_Emails
 
-# Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -21,7 +20,6 @@ def send_async_email(id):
         with app.app_context():
             logger.info("App context created successfully")
 
-            # Ensure configuration is correct
             logger.info(f"Mail server: {app.config['MAIL_SERVER']}")
             logger.info(f"Mail port: {app.config['MAIL_PORT']}")
 

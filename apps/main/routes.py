@@ -82,8 +82,6 @@ def save_emails():
 def get_emails(id):
     data_send_emails = Send_Emails.query.filter_by(id=id).first()
     
-        
-        
     if data_send_emails:
         recipients = Recipient_Emails.query.filter_by(send_emails_id=id).all()
         recipient_list = [recipient.email for recipient in recipients]
