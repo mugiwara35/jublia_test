@@ -50,7 +50,7 @@ python app.py
 ### 5. Access the Application
 Open your web browser and go to http://localhost:5000 to access the application.
 
-## Note
+## Notes
 ### 1. I am not using a .env file in this project to simplify testing and configuration.
 ### 2. Changing Email Configuration
 To change the email configuration, open the `config.py` file in this project. Update the following variables with your email settings: 
