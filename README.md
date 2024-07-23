@@ -21,34 +21,41 @@ Follow these steps to set up the project environment:
 ```bash
 git clone https://github.com/mugiwara35/jublia_test.git
 python -m venv env
-env\Scripts\activate
+.env\Scripts\activate
 cd jublia_test
 pip install -r requirements.txt
 ```
+### 2. Migrate the Database
+create the database first, Use PostgreSQL and name the database `jublia_test`. Then, open your terminal and run the following commands:
+```bash
+.env\Scripts\activate
+cd jublia_test
+flask db upgrade
+```
 
-### 2. Install Redis for Windows
+### 3. Install Redis for Windows
 For Windows, download redis from this "https://github.com/MicrosoftArchive/redis/releases" and extract the files.
 
-### 3. Start Redis Server
+### 4. Start Redis Server
 Open new terminal, navigate to the Redis directory, and start the server (don't close this terminal)
 ```bash
 redis-server
 ```
-### 3. Run Celery Worker
+### 5. Run Celery Worker
 Open another terminal, activate the environment, and start Celery (don't close this terminal)
 ```bash
 .\env\Scripts\activate  # Activate the virtual environment on Windows
 celery -A celery_worker worker --pool=solo --loglevel=info
 ```
 
-### 4. Run the Flask Application
+### 6. Run the Flask Application
 Open a third terminal, activate the environment, and run the Flask application (don't close this terminal):
 ```bash
 .\env\Scripts\activate  # Activate the virtual environment on Windows
 cd jublia_test
 python app.py
 ```
-### 5. Access the Application
+### 7. Access the Application
 Open your web browser and go to http://localhost:5000 to access the application.
 
 ## Notes
