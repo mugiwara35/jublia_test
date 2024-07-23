@@ -27,8 +27,8 @@ def create_celery(app=None):
     app = app or create_app()
     celery = Celery(
         app.import_name,
-        backend=app.config['result_backend'],
-        broker=app.config['broker_url']
+        backend="redis://localhost:6379/0",
+        broker="redis://localhost:6379/0"
     )
     celery.conf.update(app.config)
     celery.conf.update(
